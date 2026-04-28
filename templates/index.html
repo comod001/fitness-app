@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fitness App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .ejercicio {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nombre { font-size: 18px; font-weight: bold; color: #222; }
+        .series { font-size: 16px; color: #888; }
+        .completado .nombre {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+        a.check {
+            font-size: 22px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>💪 Rutina de hoy — Pierna</h1>
+
+    {% for ejercicio in rutina %}
+    <div class="ejercicio {% if ejercicio.completado %}completado{% endif %}">
+        <a class="check" href="/marcar/{{ ejercicio.id }}">
+            {% if ejercicio.completado %}✅{% else %}⬜{% endif %}
+        </a>
+        <span class="nombre">{{ ejercicio.nombre }}</span>
+        <span class="series">{{ ejercicio.series }}</span>
+    </div>
+    {% endfor %}
+
+</body>
+</html>
