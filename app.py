@@ -1,8 +1,10 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///fitness.db')
 if database_url.startswith('postgres://'):
@@ -17,6 +19,14 @@ class Ejercicio(db.Model):
     series = db.Column(db.String(50), nullable=False)
     completado = db.Column(db.Boolean, default=False)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "series": self.series,
+            "completado": self.completado
+        }
+
 with app.app_context():
     db.create_all()
     if Ejercicio.query.count() == 0:
@@ -30,18 +40,20 @@ with app.app_context():
         db.session.add_all(ejercicios)
         db.session.commit()
 
-@app.route('/')
-def home():
+# API endpoints
+@app.route('/api/rutina')
+def get_rutina():
     rutina = Ejercicio.query.all()
-    return render_template('index.html', rutina=rutina)
+    return jsonify([e.to_dict() for e in rutina])
 
-@app.route('/marcar/<int:id>')
+@app.route('/api/marcar/<int:id>', methods=['POST'])
 def marcar(id):
     ejercicio = Ejercicio.query.get(id)
     ejercicio.completado = not ejercicio.completado
     db.session.commit()
-    return redirect(url_for('home'))
+    return jsonify(ejercicio.to_dict())
 
+# Panel admin
 @app.route('/admin')
 def admin():
     rutina = Ejercicio.query.all()
@@ -58,18 +70,4 @@ def agregar():
 
 @app.route('/eliminar/<int:id>')
 def eliminar(id):
-    ejercicio = Ejercicio.query.get(id)
-    db.session.delete(ejercicio)
-    db.session.commit()
-    return redirect(url_for('admin'))
-
-@app.route('/resetear')
-def resetear():
-    ejercicios = Ejercicio.query.all()
-    for e in ejercicios:
-        e.completado = False
-    db.session.commit()
-    return redirect(url_for('admin'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    ejercicio =
