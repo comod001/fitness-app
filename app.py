@@ -70,4 +70,7 @@ def agregar():
 
 @app.route('/eliminar/<int:id>')
 def eliminar(id):
-    ejercicio =
+    ejercicio = Ejercicio.query.get(id)
+    db.session.delete(ejercicio)
+    db.session.commit()
+    return redirect(url_for('admin'))
