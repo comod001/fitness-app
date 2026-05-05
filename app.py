@@ -1,9 +1,9 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///fitness.db')
@@ -74,3 +74,23 @@ def eliminar(id):
     db.session.delete(ejercicio)
     db.session.commit()
     return redirect(url_for('admin'))
+
+@app.route('/resetear')
+def resetear():
+    ejercicios = Ejercicio.query.all()
+    for e in ejercicios:
+        e.completado = False
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+# Servir React
+@app.route('/')
+def index():
+    return send_from_directory('static', 'index.html')
+
+@app.route('/<path:path>')
+def static_files(path):
+    return send_from_directory('static', path)
+
+if __name__ == '__main__':
+    app.run(debug=True)
