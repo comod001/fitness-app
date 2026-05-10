@@ -15,13 +15,18 @@
         .btn-verde { background: #4CAF50; color: white; }
         .btn-azul { background: #2196F3; color: white; }
         .btn-gris { background: #888; color: white; }
-        .formulario { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 24px; }
-        input[type="text"], input[type="email"], input[type="password"], select { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+        .btn-morado { background: #9C27B0; color: white; }
+        .formulario { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 16px; }
+        input[type="text"], input[type="email"], input[type="password"], select, textarea { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+        textarea { height: 80px; resize: vertical; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .links { margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .links a { color: #2196F3; text-decoration: none; font-size: 14px; }
         .usuario-card { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .usuario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .usuario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .seccion-titulo { font-size: 13px; font-weight: bold; color: #888; text-transform: uppercase; margin: 16px 0 8px; border-top: 1px solid #eee; padding-top: 12px; }
+        .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -31,6 +36,7 @@
         <a href="/admin-logout" class="btn btn-gris">Cerrar sesión</a>
     </div>
 
+    <!-- AGREGAR EJERCICIO -->
     <h2>Agregar ejercicio</h2>
     <div class="formulario">
         <form action="/agregar" method="POST">
@@ -39,26 +45,22 @@
                     <label>Cliente</label>
                     <select name="usuario_id">
                         {% for u in usuarios %}
-                        <option value="{{ u.id }}">{{ u.nombre }} ({{ u.email }})</option>
+                        <option value="{{ u.id }}">{{ u.nombre }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div>
                     <label>Día</label>
                     <select name="dia">
-                        <option>Lunes</option>
-                        <option>Martes</option>
-                        <option>Miércoles</option>
-                        <option>Jueves</option>
-                        <option>Viernes</option>
-                        <option>Sábado</option>
-                        <option>Domingo</option>
+                        {% for dia in dias %}
+                        <option>{{ dia }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
             <div class="grid">
                 <div>
-                    <label>Nombre del ejercicio</label>
+                    <label>Ejercicio</label>
                     <input type="text" name="nombre" placeholder="Ej: Curl con barra" required>
                 </div>
                 <div>
@@ -69,10 +71,104 @@
             <label>Nota (opcional)</label>
             <input type="text" name="nota" placeholder="Ej: Enfócate en la contracción">
             <br><br>
-            <button type="submit" class="btn btn-verde">+ Agregar</button>
+            <button type="submit" class="btn btn-verde">+ Agregar ejercicio</button>
         </form>
     </div>
 
+    <!-- AGREGAR SUPLEMENTO -->
+    <h2>Agregar suplemento</h2>
+    <div class="formulario">
+        <form action="/agregar-suplemento" method="POST">
+            <div class="grid">
+                <div>
+                    <label>Cliente</label>
+                    <select name="usuario_id">
+                        {% for u in usuarios %}
+                        <option value="{{ u.id }}">{{ u.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Prioridad</label>
+                    <select name="prioridad">
+                        <option>Alta</option>
+                        <option>Media</option>
+                        <option>Baja</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" placeholder="Ej: Creatina Monohidrato" required>
+                </div>
+                <div>
+                    <label>Dosis</label>
+                    <input type="text" name="dosis" placeholder="Ej: 5g diarios" required>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>Color (hex)</label>
+                    <input type="text" name="color" placeholder="#2EC4B6" value="#2EC4B6">
+                </div>
+                <div></div>
+            </div>
+            <label>Razón</label>
+            <textarea name="razon" placeholder="Por qué se recomienda este suplemento..." required></textarea>
+            <button type="submit" class="btn btn-morado">+ Agregar suplemento</button>
+        </form>
+    </div>
+
+    <!-- AGREGAR NUTRICIÓN -->
+    <h2>Agregar nutrición</h2>
+    <div class="formulario">
+        <form action="/agregar-nutricion" method="POST">
+            <div class="grid">
+                <div>
+                    <label>Cliente</label>
+                    <select name="usuario_id">
+                        {% for u in usuarios %}
+                        <option value="{{ u.id }}">{{ u.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Tipo</label>
+                    <select name="tipo">
+                        <option value="objetivo">Objetivo (macro)</option>
+                        <option value="comida">Comida / Estrategia</option>
+                        <option value="regla">Regla clave</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>Título</label>
+                    <input type="text" name="titulo" placeholder="Ej: Proteína" required>
+                </div>
+                <div>
+                    <label>Subtítulo / Timing</label>
+                    <input type="text" name="subtitulo" placeholder="Ej: g/día o 'En cada comida'">
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>Valor (para objetivos)</label>
+                    <input type="text" name="valor" placeholder="Ej: 120–140">
+                </div>
+                <div>
+                    <label>Color (hex)</label>
+                    <input type="text" name="color" placeholder="#2EC4B6" value="#2EC4B6">
+                </div>
+            </div>
+            <label>Contenido (items separados por |)</label>
+            <textarea name="contenido" placeholder="Item 1|Item 2|Item 3"></textarea>
+            <button type="submit" class="btn btn-verde">+ Agregar nutrición</button>
+        </form>
+    </div>
+
+    <!-- CLIENTES -->
     <h2>Clientes</h2>
     {% for usuario in usuarios %}
     <div class="usuario-card">
@@ -83,11 +179,14 @@
             </div>
             <a href="/resetear/{{ usuario.id }}" class="btn btn-azul">🔄 Resetear</a>
         </div>
+
+        <!-- Ejercicios -->
+        <div class="seccion-titulo">💪 Ejercicios</div>
         {% set todos = usuario.ejercicios %}
         {% set dias_usuario = todos | map(attribute='dia') | unique | list %}
         {% for dia in dias_usuario %}
         {% set ejercicios_dia = todos | selectattr('dia', 'equalto', dia) | list %}
-        <h3 style="font-size: 14px; color: #555; margin: 12px 0 6px;">{{ dia }}</h3>
+        <h3 style="font-size: 13px; color: #555; margin: 10px 0 6px;">{{ dia }}</h3>
         {% for ejercicio in ejercicios_dia %}
         <div class="ejercicio">
             <div class="info">
@@ -99,6 +198,33 @@
         </div>
         {% endfor %}
         {% endfor %}
+
+        <!-- Suplementos -->
+        <div class="seccion-titulo">💊 Suplementos</div>
+        {% for s in usuario.suplementos %}
+        <div class="ejercicio">
+            <div class="info">
+                <div class="nombre" style="color: {{ s.color }}">{{ s.nombre }}</div>
+                <div class="series">{{ s.dosis }}</div>
+                <div class="nota">{{ s.razon }}</div>
+            </div>
+            <a href="/eliminar-suplemento/{{ s.id }}" class="btn btn-rojo">🗑</a>
+        </div>
+        {% endfor %}
+
+        <!-- Nutrición -->
+        <div class="seccion-titulo">🥗 Nutrición</div>
+        {% for n in usuario.nutricion %}
+        <div class="ejercicio">
+            <div class="info">
+                <div class="nombre">{{ n.titulo }}</div>
+                <div class="series">{{ n.tipo }} {% if n.subtitulo %}— {{ n.subtitulo }}{% endif %}</div>
+                {% if n.contenido %}<div class="nota">{{ n.contenido }}</div>{% endif %}
+            </div>
+            <a href="/eliminar-nutricion/{{ n.id }}" class="btn btn-rojo">🗑</a>
+        </div>
+        {% endfor %}
+
     </div>
     {% endfor %}
 </body>
