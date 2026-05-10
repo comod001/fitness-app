@@ -65,6 +65,7 @@ class RegistroSet(db.Model):
     rpe = db.Column(db.Float, nullable=True)
     fecha = db.Column(db.Date, nullable=False)
     numero_set = db.Column(db.Integer, nullable=False)
+    nota = db.Column(db.String(200), nullable=True)
 
     def to_dict(self):
         return {
@@ -75,6 +76,22 @@ class RegistroSet(db.Model):
             "rpe": self.rpe,
             "fecha": self.fecha.isoformat(),
             "numero_set": self.numero_set,
+            "nota": self.nota or "",
+        }
+
+class RegistroPeso(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    peso = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    nota = db.Column(db.String(200), nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "peso": self.peso,
+            "fecha": self.fecha.isoformat(),
+            "nota": self.nota or "",
         }
 
 class DiaPlan(db.Model):
@@ -461,6 +478,49 @@ def get_historial(ejercicio_id):
         usuario_id=current_user.id,
     ).order_by(RegistroSet.fecha.desc(), RegistroSet.numero_set).limit(30).all()
     return jsonify([s.to_dict() for s in sets])
+
+# ─── API peso corporal ─────────────────────────────────────
+@app.route('/api/peso', methods=['GET'])
+@login_required
+def get_pesos():
+    pesos = RegistroPeso.query.filter_by(
+        usuario_id=current_user.id
+    ).order_by(RegistroPeso.fecha.desc()).limit(30).all()
+    return jsonify([p.to_dict() for p in pesos])
+
+@app.route('/api/peso', methods=['POST'])
+@login_required
+def agregar_peso():
+    data = request.get_json()
+    hoy = date.today()
+    existente = RegistroPeso.query.filter_by(
+        usuario_id=current_user.id,
+        fecha=hoy
+    ).first()
+    if existente:
+        existente.peso = data['peso']
+        existente.nota = data.get('nota', '')
+        db.session.commit()
+        return jsonify(existente.to_dict())
+    nuevo = RegistroPeso(
+        usuario_id=current_user.id,
+        peso=data['peso'],
+        fecha=hoy,
+        nota=data.get('nota', '')
+    )
+    db.session.add(nuevo)
+    db.session.commit()
+    return jsonify(nuevo.to_dict())
+
+@app.route('/api/peso/<int:id>', methods=['DELETE'])
+@login_required
+def eliminar_peso(id):
+    p = RegistroPeso.query.get(id)
+    if p.usuario_id != current_user.id:
+        return jsonify({"error": "No autorizado"}), 403
+    db.session.delete(p)
+    db.session.commit()
+    return jsonify({"ok": True})
 
 # ─── Servir React ──────────────────────────────────────────
 @app.route('/')
