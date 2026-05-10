@@ -522,6 +522,53 @@ def eliminar_peso(id):
     db.session.commit()
     return jsonify({"ok": True})
 
+# ─── API racha y resumen semanal ──────────────────────────
+@app.route('/api/racha')
+@login_required
+def get_racha():
+    hoy = date.today()
+    racha = 0
+    fecha = hoy
+    while True:
+        sets = RegistroSet.query.filter_by(
+            usuario_id=current_user.id,
+            fecha=fecha
+        ).first()
+        if sets:
+            racha += 1
+            fecha -= timedelta(days=1)
+        else:
+            break
+    return jsonify({"racha": racha, "fecha": hoy.isoformat()})
+
+@app.route('/api/resumen-semanal')
+@login_required
+def get_resumen_semanal():
+    hoy = date.today()
+    inicio_semana = hoy - timedelta(days=hoy.weekday())
+    dias_entrenados = db.session.query(
+        RegistroSet.fecha
+    ).filter(
+        RegistroSet.usuario_id == current_user.id,
+        RegistroSet.fecha >= inicio_semana,
+        RegistroSet.fecha <= hoy
+    ).distinct().count()
+    total_sets = RegistroSet.query.filter(
+        RegistroSet.usuario_id == current_user.id,
+        RegistroSet.fecha >= inicio_semana,
+        RegistroSet.fecha <= hoy
+    ).count()
+    ejercicios_completados = Ejercicio.query.filter_by(
+        usuario_id=current_user.id,
+        completado=True
+    ).count()
+    return jsonify({
+        "dias_entrenados": dias_entrenados,
+        "total_sets": total_sets,
+        "ejercicios_completados": ejercicios_completados,
+        "inicio_semana": inicio_semana.isoformat(),
+    })
+
 # ─── Servir React ──────────────────────────────────────────
 @app.route('/')
 def index():
