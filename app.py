@@ -202,6 +202,11 @@ def resetear(usuario_id):
     db.session.commit()
     return redirect(url_for('admin'))
 
+@app.route('/admin-logout')
+def admin_logout():
+    logout_user()
+    return redirect('/admin-login')
+
 # ─── Servir React ──────────────────────────────────────────
 @app.route('/')
 def index():
