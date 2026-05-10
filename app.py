@@ -17,6 +17,9 @@ if database_url.startswith('postgres://'):
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
+app.config['REMEMBER_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'None'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -193,7 +196,7 @@ def registro():
     )
     db.session.add(usuario)
     db.session.commit()
-    login_user(usuario)
+    login_user(usuario, remember=True)
     return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin})
 
 @app.route('/api/login', methods=['POST'])
@@ -202,7 +205,7 @@ def login():
     usuario = Usuario.query.filter_by(email=data['email']).first()
     if not usuario or not check_password_hash(usuario.password, data['password']):
         return jsonify({"error": "Credenciales incorrectas"}), 401
-    login_user(usuario)
+    login_user(usuario, remember=True)
     return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin})
 
 @app.route('/api/logout', methods=['POST'])
