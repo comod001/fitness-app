@@ -199,62 +199,92 @@
 
     <!-- CLIENTES -->
     <h2>Clientes</h2>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+        {% for usuario in usuarios %}
+        <button
+            id="tab-{{ usuario.id }}"
+            onclick="mostrarCliente({{ usuario.id }})"
+            class="btn"
+            style="background: #e0e0e0; color: #333; font-size: 13px;">
+            {{ usuario.nombre.split(' ')[0] }}
+        </button>
+        {% endfor %}
+    </div>
+
     {% for usuario in usuarios %}
-    <div class="usuario-card">
-        <div class="usuario-header">
-            <div>
-                <strong>{{ usuario.nombre }}</strong>
-                <span style="font-size: 13px; color: #888; margin-left: 8px;">{{ usuario.email }}</span>
+    <div class="cliente-panel" id="panel-{{ usuario.id }}" style="display: none;">
+        <div class="usuario-card">
+            <div class="usuario-header">
+                <div>
+                    <strong>{{ usuario.nombre }}</strong>
+                    <span style="font-size: 13px; color: #888; margin-left: 8px;">{{ usuario.email }}</span>
+                </div>
+                <a href="/resetear/{{ usuario.id }}" class="btn btn-azul">🔄 Resetear</a>
             </div>
-            <a href="/resetear/{{ usuario.id }}" class="btn btn-azul">🔄 Resetear</a>
-        </div>
 
-        <!-- Ejercicios -->
-        <div class="seccion-titulo">💪 Ejercicios</div>
-        {% set todos = usuario.ejercicios %}
-        {% set dias_usuario = todos | map(attribute='dia') | unique | list %}
-        {% for dia in dias_usuario %}
-        {% set ejercicios_dia = todos | selectattr('dia', 'equalto', dia) | list %}
-        <h3 style="font-size: 13px; color: #555; margin: 10px 0 6px;">{{ dia }}</h3>
-        {% for ejercicio in ejercicios_dia %}
-        <div class="ejercicio">
-            <div class="info">
-                <div class="nombre">{{ ejercicio.nombre }}</div>
-                <div class="series">{{ ejercicio.series }}</div>
-                {% if ejercicio.nota %}<div class="nota">💡 {{ ejercicio.nota }}</div>{% endif %}
+            <!-- Ejercicios -->
+            <div class="seccion-titulo">💪 Ejercicios</div>
+            {% set todos = usuario.ejercicios %}
+            {% set dias_usuario = todos | map(attribute='dia') | unique | list %}
+            {% for dia in dias_usuario %}
+            {% set ejercicios_dia = todos | selectattr('dia', 'equalto', dia) | list %}
+            <h3 style="font-size: 13px; color: #555; margin: 10px 0 6px;">{{ dia }}</h3>
+            {% for ejercicio in ejercicios_dia %}
+            <div class="ejercicio">
+                <div class="info">
+                    <div class="nombre">{{ ejercicio.nombre }}</div>
+                    <div class="series">{{ ejercicio.series }}</div>
+                    {% if ejercicio.nota %}<div class="nota">💡 {{ ejercicio.nota }}</div>{% endif %}
+                </div>
+                <a href="/eliminar/{{ ejercicio.id }}" class="btn btn-rojo">🗑</a>
             </div>
-            <a href="/eliminar/{{ ejercicio.id }}" class="btn btn-rojo">🗑</a>
-        </div>
-        {% endfor %}
-        {% endfor %}
+            {% endfor %}
+            {% endfor %}
 
-        <!-- Suplementos -->
-        <div class="seccion-titulo">💊 Suplementos</div>
-        {% for s in usuario.suplementos %}
-        <div class="ejercicio">
-            <div class="info">
-                <div class="nombre" style="color: {{ s.color }}">{{ s.nombre }}</div>
-                <div class="series">{{ s.dosis }}</div>
-                <div class="nota">{{ s.razon }}</div>
+            <!-- Suplementos -->
+            <div class="seccion-titulo">💊 Suplementos</div>
+            {% for s in usuario.suplementos %}
+            <div class="ejercicio">
+                <div class="info">
+                    <div class="nombre" style="color: {{ s.color }}">{{ s.nombre }}</div>
+                    <div class="series">{{ s.dosis }}</div>
+                    <div class="nota">{{ s.razon }}</div>
+                </div>
+                <a href="/eliminar-suplemento/{{ s.id }}" class="btn btn-rojo">🗑</a>
             </div>
-            <a href="/eliminar-suplemento/{{ s.id }}" class="btn btn-rojo">🗑</a>
-        </div>
-        {% endfor %}
+            {% endfor %}
 
-        <!-- Nutrición -->
-        <div class="seccion-titulo">🥗 Nutrición</div>
-        {% for n in usuario.nutricion %}
-        <div class="ejercicio">
-            <div class="info">
-                <div class="nombre">{{ n.titulo }}</div>
-                <div class="series">{{ n.tipo }} {% if n.subtitulo %}— {{ n.subtitulo }}{% endif %}</div>
-                {% if n.contenido %}<div class="nota">{{ n.contenido }}</div>{% endif %}
+            <!-- Nutrición -->
+            <div class="seccion-titulo">🥗 Nutrición</div>
+            {% for n in usuario.nutricion %}
+            <div class="ejercicio">
+                <div class="info">
+                    <div class="nombre">{{ n.titulo }}</div>
+                    <div class="series">{{ n.tipo }} {% if n.subtitulo %}— {{ n.subtitulo }}{% endif %}</div>
+                    {% if n.contenido %}<div class="nota">{{ n.contenido }}</div>{% endif %}
+                </div>
+                <a href="/eliminar-nutricion/{{ n.id }}" class="btn btn-rojo">🗑</a>
             </div>
-            <a href="/eliminar-nutricion/{{ n.id }}" class="btn btn-rojo">🗑</a>
+            {% endfor %}
         </div>
-        {% endfor %}
-
     </div>
     {% endfor %}
+
+    <script>
+        var _clienteActivo = null;
+        function mostrarCliente(id) {
+            document.querySelectorAll('.cliente-panel').forEach(function(p) { p.style.display = 'none'; });
+            document.querySelectorAll('[id^="tab-"]').forEach(function(b) { b.style.background = '#e0e0e0'; b.style.color = '#333'; });
+            if (_clienteActivo === id) {
+                _clienteActivo = null;
+                return;
+            }
+            document.getElementById('panel-' + id).style.display = 'block';
+            var tab = document.getElementById('tab-' + id);
+            tab.style.background = '#2196F3';
+            tab.style.color = '#fff';
+            _clienteActivo = id;
+        }
+    </script>
 </body>
 </html>
