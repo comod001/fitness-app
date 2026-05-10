@@ -1,4 +1,5 @@
 import os
+from datetime import date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -39,6 +40,7 @@ class Ejercicio(db.Model):
     completado = db.Column(db.Boolean, default=False)
     dia = db.Column(db.String(50), nullable=False, default='Lunes')
     nota = db.Column(db.String(200), nullable=True)
+    reseteado_semana = db.Column(db.Date, nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
     def to_dict(self):
@@ -163,6 +165,21 @@ with app.app_context():
         db.session.add_all(suplementos)
         db.session.commit()
 
+# ─── Reseteo semanal ───────────────────────────────────────
+def verificar_reseteo_semanal(usuario_id):
+    hoy = date.today()
+    ultimo_lunes = hoy - timedelta(days=hoy.weekday())
+    ejercicios = Ejercicio.query.filter_by(usuario_id=usuario_id).all()
+    necesita_reset = any(
+        e.reseteado_semana is None or e.reseteado_semana < ultimo_lunes
+        for e in ejercicios
+    )
+    if necesita_reset:
+        for e in ejercicios:
+            e.completado = False
+            e.reseteado_semana = hoy
+        db.session.commit()
+
 # ─── Auth endpoints ────────────────────────────────────────
 @app.route('/api/registro', methods=['POST'])
 def registro():
@@ -204,6 +221,7 @@ def me():
 @app.route('/api/rutina')
 @login_required
 def get_rutina():
+    verificar_reseteo_semanal(current_user.id)
     rutina = Ejercicio.query.filter_by(usuario_id=current_user.id).all()
     return jsonify([e.to_dict() for e in rutina])
 
