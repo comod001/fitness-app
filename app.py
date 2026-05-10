@@ -31,6 +31,7 @@ class Usuario(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     es_admin = db.Column(db.Boolean, default=False)
+    genero = db.Column(db.String(10), nullable=True, default='masculino')
     ejercicios = db.relationship('Ejercicio', backref='usuario', lazy=True)
     dias_plan = db.relationship('DiaPlan', backref='usuario', lazy=True)
     nutricion = db.relationship('Nutricion', backref='usuario', lazy=True)
@@ -230,12 +231,13 @@ def registro():
     usuario = Usuario(
         nombre=data['nombre'],
         email=data['email'],
-        password=generate_password_hash(data['password'])
+        password=generate_password_hash(data['password']),
+        genero=data.get('genero', 'masculino')
     )
     db.session.add(usuario)
     db.session.commit()
     login_user(usuario, remember=True)
-    return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin})
+    return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin, "genero": usuario.genero})
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -244,7 +246,7 @@ def login():
     if not usuario or not check_password_hash(usuario.password, data['password']):
         return jsonify({"error": "Credenciales incorrectas"}), 401
     login_user(usuario, remember=True)
-    return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin})
+    return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin, "genero": usuario.genero})
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
@@ -255,7 +257,7 @@ def logout():
 @app.route('/api/me')
 def me():
     if current_user.is_authenticated:
-        return jsonify({"id": current_user.id, "nombre": current_user.nombre, "email": current_user.email, "es_admin": current_user.es_admin})
+        return jsonify({"id": current_user.id, "nombre": current_user.nombre, "email": current_user.email, "es_admin": current_user.es_admin, "genero": current_user.genero})
     return jsonify({"error": "No autenticado"}), 401
 
 # ─── API rutina ────────────────────────────────────────────
