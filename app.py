@@ -56,6 +56,27 @@ class Ejercicio(db.Model):
             "nota": self.nota or "",
         }
 
+class RegistroSet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ejercicio_id = db.Column(db.Integer, db.ForeignKey('ejercicio.id'), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    peso = db.Column(db.Float, nullable=True)
+    reps = db.Column(db.Integer, nullable=True)
+    rpe = db.Column(db.Float, nullable=True)
+    fecha = db.Column(db.Date, nullable=False)
+    numero_set = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "ejercicio_id": self.ejercicio_id,
+            "peso": self.peso,
+            "reps": self.reps,
+            "rpe": self.rpe,
+            "fecha": self.fecha.isoformat(),
+            "numero_set": self.numero_set,
+        }
+
 class DiaPlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dia = db.Column(db.String(50), nullable=False)
@@ -386,6 +407,60 @@ def agregar_dia_plan():
         db.session.add(nuevo)
     db.session.commit()
     return redirect(url_for('admin'))
+
+# ─── API registro de sets ──────────────────────────────────
+@app.route('/api/sets/<int:ejercicio_id>', methods=['GET'])
+@login_required
+def get_sets(ejercicio_id):
+    hoy = date.today()
+    sets = RegistroSet.query.filter_by(
+        ejercicio_id=ejercicio_id,
+        usuario_id=current_user.id,
+        fecha=hoy
+    ).order_by(RegistroSet.numero_set).all()
+    return jsonify([s.to_dict() for s in sets])
+
+@app.route('/api/sets/<int:ejercicio_id>', methods=['POST'])
+@login_required
+def agregar_set(ejercicio_id):
+    data = request.get_json()
+    hoy = date.today()
+    numero = RegistroSet.query.filter_by(
+        ejercicio_id=ejercicio_id,
+        usuario_id=current_user.id,
+        fecha=hoy
+    ).count() + 1
+    nuevo = RegistroSet(
+        ejercicio_id=ejercicio_id,
+        usuario_id=current_user.id,
+        peso=data.get('peso'),
+        reps=data.get('reps'),
+        rpe=data.get('rpe'),
+        fecha=hoy,
+        numero_set=numero
+    )
+    db.session.add(nuevo)
+    db.session.commit()
+    return jsonify(nuevo.to_dict())
+
+@app.route('/api/sets/<int:set_id>/eliminar', methods=['DELETE'])
+@login_required
+def eliminar_set(set_id):
+    s = RegistroSet.query.get(set_id)
+    if s.usuario_id != current_user.id:
+        return jsonify({"error": "No autorizado"}), 403
+    db.session.delete(s)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+@app.route('/api/historial/<int:ejercicio_id>', methods=['GET'])
+@login_required
+def get_historial(ejercicio_id):
+    sets = RegistroSet.query.filter_by(
+        ejercicio_id=ejercicio_id,
+        usuario_id=current_user.id,
+    ).order_by(RegistroSet.fecha.desc(), RegistroSet.numero_set).limit(30).all()
+    return jsonify([s.to_dict() for s in sets])
 
 # ─── Servir React ──────────────────────────────────────────
 @app.route('/')
