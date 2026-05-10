@@ -64,6 +64,36 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()
 
+    # Cargar ejercicios de Ambar si no tiene ninguno
+    ambar = Usuario.query.filter_by(es_admin=False).first()
+    if ambar and Ejercicio.query.filter_by(usuario_id=ambar.id).count() == 0:
+        ejercicios = [
+            # Viernes
+            Ejercicio(dia="Viernes", nombre="Jalón al pecho", series="4x10", usuario_id=ambar.id),
+            Ejercicio(dia="Viernes", nombre="Remo en máquina", series="3x12", usuario_id=ambar.id),
+            Ejercicio(dia="Viernes", nombre="Remo con mancuerna un brazo", series="3x12", usuario_id=ambar.id),
+            Ejercicio(dia="Viernes", nombre="Pullover en polea", series="3x15", usuario_id=ambar.id),
+            Ejercicio(dia="Viernes", nombre="Curl con barra", series="3x12", usuario_id=ambar.id),
+            Ejercicio(dia="Viernes", nombre="Curl martillo", series="3x12", usuario_id=ambar.id),
+            Ejercicio(dia="Viernes", nombre="Cardio", series="15 min", usuario_id=ambar.id),
+            # Sábado
+            Ejercicio(dia="Sábado", nombre="Sentadilla hack squat", series="4x10", usuario_id=ambar.id),
+            Ejercicio(dia="Sábado", nombre="Prensa de piernas", series="4x12", usuario_id=ambar.id),
+            Ejercicio(dia="Sábado", nombre="Extensión de cuádriceps", series="3x15", usuario_id=ambar.id),
+            Ejercicio(dia="Sábado", nombre="Hip thrust", series="4x12", usuario_id=ambar.id),
+            Ejercicio(dia="Sábado", nombre="Peso muerto rumano", series="3x12", usuario_id=ambar.id),
+            Ejercicio(dia="Sábado", nombre="Cardio caminadora inclinada", series="20 min", usuario_id=ambar.id),
+            # Domingo
+            Ejercicio(dia="Domingo", nombre="Press en máquina", series="4x10", usuario_id=ambar.id),
+            Ejercicio(dia="Domingo", nombre="Aperturas en polea", series="3x15", usuario_id=ambar.id),
+            Ejercicio(dia="Domingo", nombre="Press militar mancuernas", series="4x10", usuario_id=ambar.id),
+            Ejercicio(dia="Domingo", nombre="Elevaciones laterales", series="4x15", usuario_id=ambar.id),
+            Ejercicio(dia="Domingo", nombre="Extensión tríceps en polea", series="3x15", usuario_id=ambar.id),
+            Ejercicio(dia="Domingo", nombre="Fondos en banco", series="3x12", usuario_id=ambar.id),
+            Ejercicio(dia="Domingo", nombre="Cardio", series="15 min", usuario_id=ambar.id),
+        ]
+        db.session.add_all(ejercicios)
+        db.session.commit()
 # ─── Auth endpoints ────────────────────────────────────────
 @app.route('/api/registro', methods=['POST'])
 def registro():
