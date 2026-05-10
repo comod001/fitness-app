@@ -3,7 +3,7 @@
 <head>
     <title>Panel del Entrenador</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; background: #f5f5f5; padding: 20px; }
+        body { font-family: Arial, sans-serif; max-width: 750px; margin: 40px auto; background: #f5f5f5; padding: 20px; }
         h1, h2, h3 { color: #333; }
         .ejercicio { background: white; border-radius: 10px; padding: 15px 20px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .info { flex: 1; }
@@ -14,19 +14,25 @@
         .btn-rojo { background: #ff4d4d; color: white; }
         .btn-verde { background: #4CAF50; color: white; }
         .btn-azul { background: #2196F3; color: white; }
+        .btn-gris { background: #888; color: white; }
         .formulario { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 24px; }
-        input[type="text"], select { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+        input[type="text"], input[type="email"], input[type="password"], select { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; margin: 4px 0; width: 100%; box-sizing: border-box; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .dia-section { margin-bottom: 30px; }
-        .links { margin-bottom: 20px; display: flex; gap: 12px; align-items: center; }
+        .dia-section { margin-bottom: 20px; }
+        .links { margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .links a { color: #2196F3; text-decoration: none; font-size: 14px; }
+        .usuario-card { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .usuario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+        .tab { padding: 6px 14px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 13px; }
+        .tab.active { background: #2196F3; color: white; border-color: #2196F3; }
     </style>
 </head>
 <body>
     <h1>⚙️ Panel del Entrenador</h1>
     <div class="links">
-        <a href="/">← Ver app del cliente</a>
-        <a href="/resetear" class="btn btn-azul">🔄 Resetear todos los checkboxes</a>
+        <a href="/">← Ver app</a>
+        <a href="/api/logout" class="btn btn-gris">Cerrar sesión</a>
     </div>
 
     <h2>Agregar ejercicio</h2>
@@ -34,20 +40,32 @@
         <form action="/agregar" method="POST">
             <div class="grid">
                 <div>
+                    <label>Cliente</label>
+                    <select name="usuario_id">
+                        {% for u in usuarios %}
+                        <option value="{{ u.id }}">{{ u.nombre }} ({{ u.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
                     <label>Día</label>
                     <select name="dia">
-                        <option>Viernes</option>
-                        <option>Sábado</option>
-                        <option>Domingo</option>
+                        {% for dia in dias %}
+                        <option>{{ dia }}</option>
+                        {% endfor %}
                     </select>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>Nombre del ejercicio</label>
+                    <input type="text" name="nombre" placeholder="Ej: Curl con barra" required>
                 </div>
                 <div>
                     <label>Series/Reps</label>
                     <input type="text" name="series" placeholder="Ej: 3x12" required>
                 </div>
             </div>
-            <label>Nombre del ejercicio</label>
-            <input type="text" name="nombre" placeholder="Ej: Curl con barra" required>
             <label>Nota (opcional)</label>
             <input type="text" name="nota" placeholder="Ej: Enfócate en la contracción">
             <br><br>
@@ -55,11 +73,21 @@
         </form>
     </div>
 
-    <h2>Rutina actual</h2>
-    {% for dia in dias %}
-    <div class="dia-section">
-        <h3>{{ dia }}</h3>
-        {% for ejercicio in rutina[dia] %}
+    <h2>Clientes</h2>
+    {% for usuario in usuarios %}
+    <div class="usuario-card">
+        <div class="usuario-header">
+            <div>
+                <strong>{{ usuario.nombre }}</strong>
+                <span style="font-size: 13px; color: #888; margin-left: 8px;">{{ usuario.email }}</span>
+            </div>
+            <a href="/resetear/{{ usuario.id }}" class="btn btn-azul">🔄 Resetear</a>
+        </div>
+        {% for dia in dias %}
+        {% set ejercicios_dia = usuario.ejercicios | selectattr('dia', 'equalto', dia) | list %}
+        {% if ejercicios_dia %}
+        <h3 style="font-size: 14px; color: #555; margin: 12px 0 6px;">{{ dia }}</h3>
+        {% for ejercicio in ejercicios_dia %}
         <div class="ejercicio">
             <div class="info">
                 <div class="nombre">{{ ejercicio.nombre }}</div>
@@ -68,6 +96,8 @@
             </div>
             <a href="/eliminar/{{ ejercicio.id }}" class="btn btn-rojo">🗑</a>
         </div>
+        {% endfor %}
+        {% endif %}
         {% endfor %}
     </div>
     {% endfor %}
