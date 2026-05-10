@@ -36,6 +36,35 @@
         <a href="/admin-logout" class="btn btn-gris">Cerrar sesión</a>
     </div>
 
+    <!-- AGREGAR ENFOQUE DE DÍA -->
+    <h2>Enfoque por día</h2>
+    <div class="formulario">
+        <form action="/agregar-dia-plan" method="POST">
+            <div class="grid">
+                <div>
+                    <label>Cliente</label>
+                    <select name="usuario_id">
+                        {% for u in usuarios %}
+                        <option value="{{ u.id }}">{{ u.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Día</label>
+                    <select name="dia">
+                        {% for dia in dias %}
+                        <option>{{ dia }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <label>Enfoque</label>
+            <input type="text" name="enfoque" placeholder="Ej: Espalda · Bíceps" required>
+            <br><br>
+            <button type="submit" class="btn btn-azul">+ Guardar enfoque</button>
+        </form>
+    </div>
+
     <!-- AGREGAR EJERCICIO -->
     <h2>Agregar ejercicio</h2>
     <div class="formulario">

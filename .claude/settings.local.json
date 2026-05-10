@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\edwin\\\\Desktop\")",
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\edwin\\\\Desktop\\\\fitness-client\\\\src\")",
+      "Bash(cp -r C:/Users/edwin/Desktop/fitness-client/dist/assets/* C:/Users/edwin/Desktop/fitness-app/static/assets/)",
+      "Bash(cp C:/Users/edwin/Desktop/fitness-client/dist/index.html C:/Users/edwin/Desktop/fitness-app/templates/index.html)",
+      "Bash(git push *)"
+    ]
+  }
+}

@@ -28,6 +28,7 @@ class Usuario(UserMixin, db.Model):
     password = db.Column(db.String(200), nullable=False)
     es_admin = db.Column(db.Boolean, default=False)
     ejercicios = db.relationship('Ejercicio', backref='usuario', lazy=True)
+    dias_plan = db.relationship('DiaPlan', backref='usuario', lazy=True)
     nutricion = db.relationship('Nutricion', backref='usuario', lazy=True)
     suplementos = db.relationship('Suplemento', backref='usuario', lazy=True)
 
@@ -50,12 +51,25 @@ class Ejercicio(db.Model):
             "nota": self.nota or "",
         }
 
+class DiaPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dia = db.Column(db.String(50), nullable=False)
+    enfoque = db.Column(db.String(100), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "dia": self.dia,
+            "enfoque": self.enfoque,
+        }
+
 class Nutricion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.String(20), nullable=False)  # 'objetivo', 'comida', 'regla'
+    tipo = db.Column(db.String(20), nullable=False)
     titulo = db.Column(db.String(100), nullable=False)
     subtitulo = db.Column(db.String(100), nullable=True)
-    contenido = db.Column(db.Text, nullable=True)  # items separados por |
+    contenido = db.Column(db.Text, nullable=True)
     valor = db.Column(db.String(50), nullable=True)
     color = db.Column(db.String(20), nullable=True)
     orden = db.Column(db.Integer, default=0)
@@ -135,6 +149,15 @@ with app.app_context():
             Ejercicio(dia="Domingo", nombre="Cardio", series="15 min", usuario_id=ambar.id),
         ]
         db.session.add_all(ejercicios)
+        db.session.commit()
+
+    if ambar and DiaPlan.query.filter_by(usuario_id=ambar.id).count() == 0:
+        dias_plan = [
+            DiaPlan(dia="Viernes", enfoque="Espalda · Bíceps", usuario_id=ambar.id),
+            DiaPlan(dia="Sábado", enfoque="Piernas · Glúteo", usuario_id=ambar.id),
+            DiaPlan(dia="Domingo", enfoque="Pecho · Hombros · Tríceps", usuario_id=ambar.id),
+        ]
+        db.session.add_all(dias_plan)
         db.session.commit()
 
     if ambar and Nutricion.query.filter_by(usuario_id=ambar.id).count() == 0:
@@ -219,6 +242,13 @@ def marcar(id):
     ejercicio.completado = not ejercicio.completado
     db.session.commit()
     return jsonify(ejercicio.to_dict())
+
+# ─── API dias plan ─────────────────────────────────────────
+@app.route('/api/dias-plan')
+@login_required
+def get_dias_plan():
+    dias = DiaPlan.query.filter_by(usuario_id=current_user.id).all()
+    return jsonify([d.to_dict() for d in dias])
 
 # ─── API nutricion ─────────────────────────────────────────
 @app.route('/api/nutricion')
@@ -324,9 +354,8 @@ def agregar_nutricion():
     if not current_user.is_authenticated or not current_user.es_admin:
         return redirect('/admin-login')
     usuario_id = int(request.form['usuario_id'])
-    tipo = request.form['tipo']
     nuevo = Nutricion(
-        tipo=tipo,
+        tipo=request.form['tipo'],
         titulo=request.form['titulo'],
         subtitulo=request.form.get('subtitulo', ''),
         contenido=request.form.get('contenido', ''),
@@ -344,6 +373,22 @@ def eliminar_nutricion(id):
         return redirect('/admin-login')
     n = Nutricion.query.get(id)
     db.session.delete(n)
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/agregar-dia-plan', methods=['POST'])
+def agregar_dia_plan():
+    if not current_user.is_authenticated or not current_user.es_admin:
+        return redirect('/admin-login')
+    usuario_id = int(request.form['usuario_id'])
+    dia = request.form['dia']
+    enfoque = request.form['enfoque']
+    existente = DiaPlan.query.filter_by(usuario_id=usuario_id, dia=dia).first()
+    if existente:
+        existente.enfoque = enfoque
+    else:
+        nuevo = DiaPlan(dia=dia, enfoque=enfoque, usuario_id=usuario_id)
+        db.session.add(nuevo)
     db.session.commit()
     return redirect(url_for('admin'))
 
