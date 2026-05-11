@@ -5,7 +5,24 @@
       "PowerShell(cmd /c \"dir C:\\\\Users\\\\edwin\\\\Desktop\\\\fitness-client\\\\src\")",
       "Bash(cp -r C:/Users/edwin/Desktop/fitness-client/dist/assets/* C:/Users/edwin/Desktop/fitness-app/static/assets/)",
       "Bash(cp C:/Users/edwin/Desktop/fitness-client/dist/index.html C:/Users/edwin/Desktop/fitness-app/templates/index.html)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(python -c \"import psycopg2; print\\('ok'\\)\")",
+      "Bash(pip install *)",
+      "Bash(python3 -c \"import psycopg2; print\\('ok'\\)\")",
+      "PowerShell(python --version)",
+      "PowerShell(python -c \"import psycopg2; print\\('psycopg2 ok'\\)\")",
+      "PowerShell(Get-Command py -ErrorAction SilentlyContinue)",
+      "PowerShell(py --version)",
+      "PowerShell(py -c \"import psycopg2; print\\('ok'\\)\")",
+      "PowerShell(py -m pip install pg8000 -q)",
+      "PowerShell(py -c \"import pg8000; print\\('pg8000 ok'\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(py -c ' *)",
+      "Bash(cmd /c \"dir C:\\\\Users\\\\edwin\\\\Desktop\\\\fitness-client\\\\public\")",
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\edwin\\\\Desktop\\\\fitness-client\\\\public\")",
+      "Bash(npm run *)",
+      "PowerShell(& \"C:\\\\Users\\\\edwin\\\\AppData\\\\Local\\\\Python\\\\bin\\\\python.exe\" \"C:\\\\Users\\\\edwin\\\\Desktop\\\\fitness-app\\\\update_genero.py\")"
     ]
   }
 }
