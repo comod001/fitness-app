@@ -317,6 +317,26 @@
                 <a href="/eliminar-nutricion/{{ n.id }}" class="btn btn-rojo">🗑</a>
             </div>
             {% endfor %}
+
+            <!-- Enviar mensaje -->
+            <div class="seccion-titulo">💬 Enviar mensaje</div>
+            <form action="/admin/mensaje" method="POST" style="display:flex; gap:8px; margin-bottom:8px;">
+              <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+              <input type="text" name="mensaje" placeholder="Escribe una nota para {{ usuario.nombre }}..." required style="flex:1;">
+              <button type="submit" class="btn btn-verde">Enviar</button>
+            </form>
+
+            <!-- Mensajes enviados -->
+            {% set mensajes_usuario = usuario.mensajes_entrenador %}
+            {% for m in mensajes_usuario[:5] %}
+            <div style="background:#f9f9f9; border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+              <div>
+                <p style="font-size:13px; color:#333; margin:0 0 4px;">{{ m.mensaje }}</p>
+                <p style="font-size:11px; color:#aaa; margin:0;">{{ m.fecha.strftime('%d/%m/%Y %H:%M') }} {{ '· Leído ✓' if m.leido else '· Sin leer' }}</p>
+              </div>
+              <a href="/admin/mensaje/{{ m.id }}/eliminar" style="color:#ff4d4d; font-size:12px; text-decoration:none; flex-shrink:0;">✕</a>
+            </div>
+            {% endfor %}
         </div>
     </div>
     {% endfor %}

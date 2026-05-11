@@ -46,6 +46,7 @@ class Usuario(UserMixin, db.Model):
     dias_plan = db.relationship('DiaPlan', backref='usuario', lazy=True)
     nutricion = db.relationship('Nutricion', backref='usuario', lazy=True)
     suplementos = db.relationship('Suplemento', backref='usuario', lazy=True)
+    mensajes_entrenador = db.relationship('MensajeEntrenador', backref='usuario', lazy=True)
 
 class Ejercicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -103,6 +104,21 @@ class RegistroPeso(db.Model):
             "peso": self.peso,
             "fecha": self.fecha.isoformat(),
             "nota": self.nota or "",
+        }
+
+class MensajeEntrenador(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    mensaje = db.Column(db.Text, nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    leido = db.Column(db.Boolean, default=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "mensaje": self.mensaje,
+            "fecha": self.fecha.strftime("%d/%m/%Y %H:%M"),
+            "leido": self.leido,
         }
 
 class DiaPlan(db.Model):
@@ -657,6 +673,49 @@ def get_resumen_semanal():
         "ejercicios_completados": ejercicios_completados,
         "inicio_semana": inicio_semana.isoformat(),
     })
+
+@app.route('/api/mensajes', methods=['GET'])
+@login_required
+def get_mensajes():
+    mensajes = MensajeEntrenador.query.filter_by(
+        usuario_id=current_user.id
+    ).order_by(MensajeEntrenador.fecha.desc()).limit(20).all()
+    for m in mensajes:
+        m.leido = True
+    db.session.commit()
+    return jsonify([m.to_dict() for m in mensajes])
+
+@app.route('/api/mensajes/sin-leer', methods=['GET'])
+@login_required
+def mensajes_sin_leer():
+    count = MensajeEntrenador.query.filter_by(
+        usuario_id=current_user.id,
+        leido=False
+    ).count()
+    return jsonify({"sin_leer": count})
+
+@app.route('/admin/mensaje', methods=['POST'])
+def enviar_mensaje():
+    if not current_user.is_authenticated or not current_user.es_admin:
+        return redirect('/admin-login')
+    usuario_id = int(request.form['usuario_id'])
+    mensaje = request.form['mensaje']
+    nuevo = MensajeEntrenador(
+        usuario_id=usuario_id,
+        mensaje=mensaje
+    )
+    db.session.add(nuevo)
+    db.session.commit()
+    return redirect('/admin')
+
+@app.route('/admin/mensaje/<int:id>/eliminar')
+def eliminar_mensaje(id):
+    if not current_user.is_authenticated or not current_user.es_admin:
+        return redirect('/admin-login')
+    m = MensajeEntrenador.query.get(id)
+    db.session.delete(m)
+    db.session.commit()
+    return redirect('/admin')
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
