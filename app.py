@@ -2,6 +2,7 @@ import os
 from datetime import date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from flask_cors import CORS
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -33,6 +34,14 @@ class Usuario(UserMixin, db.Model):
     es_admin = db.Column(db.Boolean, default=False)
     genero = db.Column(db.String(10), nullable=True, default='masculino')
     fecha_registro = db.Column(db.Date, nullable=True, default=date.today)
+    edad = db.Column(db.Integer, nullable=True)
+    estatura = db.Column(db.Float, nullable=True)
+    objetivo = db.Column(db.String(50), nullable=True)
+    nivel = db.Column(db.String(20), nullable=True)
+    dias_disponibles = db.Column(db.Integer, nullable=True)
+    equipamiento = db.Column(db.String(50), nullable=True)
+    lesiones = db.Column(db.Text, nullable=True)
+    foto_url = db.Column(db.String(200), nullable=True)
     ejercicios = db.relationship('Ejercicio', backref='usuario', lazy=True)
     dias_plan = db.relationship('DiaPlan', backref='usuario', lazy=True)
     nutricion = db.relationship('Nutricion', backref='usuario', lazy=True)
@@ -159,6 +168,22 @@ def load_user(user_id):
 
 with app.app_context():
     db.create_all()
+    for _sql in [
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS edad INTEGER",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS estatura FLOAT",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS objetivo VARCHAR(50)",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS nivel VARCHAR(20)",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS dias_disponibles INTEGER",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS equipamiento VARCHAR(50)",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS lesiones TEXT",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS foto_url VARCHAR(200)",
+    ]:
+        try:
+            with db.engine.connect() as _conn:
+                _conn.execute(text(_sql))
+                _conn.commit()
+        except Exception:
+            pass
     if Usuario.query.count() == 0:
         admin = Usuario(
             nombre="Edwin",
@@ -233,12 +258,28 @@ def registro():
         nombre=data['nombre'],
         email=data['email'],
         password=generate_password_hash(data['password']),
-        genero=data.get('genero', 'masculino')
+        genero=data.get('genero', 'masculino'),
+        edad=data.get('edad'),
+        estatura=data.get('estatura'),
+        objetivo=data.get('objetivo'),
+        nivel=data.get('nivel'),
+        dias_disponibles=data.get('dias_disponibles'),
+        equipamiento=data.get('equipamiento'),
+        lesiones=data.get('lesiones'),
     )
     db.session.add(usuario)
     db.session.commit()
     login_user(usuario, remember=True)
-    return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin, "genero": usuario.genero, "fecha_registro": usuario.fecha_registro.isoformat() if usuario.fecha_registro else None, "dias_en_apex": (date.today() - usuario.fecha_registro).days + 1 if usuario.fecha_registro else 1})
+    return jsonify({
+        "id": usuario.id, "nombre": usuario.nombre, "email": usuario.email,
+        "es_admin": usuario.es_admin, "genero": usuario.genero,
+        "edad": usuario.edad, "estatura": usuario.estatura,
+        "objetivo": usuario.objetivo, "nivel": usuario.nivel,
+        "dias_disponibles": usuario.dias_disponibles, "equipamiento": usuario.equipamiento,
+        "lesiones": usuario.lesiones or "", "foto_url": usuario.foto_url or "",
+        "fecha_registro": usuario.fecha_registro.isoformat() if usuario.fecha_registro else None,
+        "dias_en_apex": (date.today() - usuario.fecha_registro).days + 1 if usuario.fecha_registro else 1,
+    })
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -247,7 +288,16 @@ def login():
     if not usuario or not check_password_hash(usuario.password, data['password']):
         return jsonify({"error": "Credenciales incorrectas"}), 401
     login_user(usuario, remember=True)
-    return jsonify({"id": usuario.id, "nombre": usuario.nombre, "email": usuario.email, "es_admin": usuario.es_admin, "genero": usuario.genero, "fecha_registro": usuario.fecha_registro.isoformat() if usuario.fecha_registro else None, "dias_en_apex": (date.today() - usuario.fecha_registro).days + 1 if usuario.fecha_registro else 1})
+    return jsonify({
+        "id": usuario.id, "nombre": usuario.nombre, "email": usuario.email,
+        "es_admin": usuario.es_admin, "genero": usuario.genero,
+        "edad": usuario.edad, "estatura": usuario.estatura,
+        "objetivo": usuario.objetivo, "nivel": usuario.nivel,
+        "dias_disponibles": usuario.dias_disponibles, "equipamiento": usuario.equipamiento,
+        "lesiones": usuario.lesiones or "", "foto_url": usuario.foto_url or "",
+        "fecha_registro": usuario.fecha_registro.isoformat() if usuario.fecha_registro else None,
+        "dias_en_apex": (date.today() - usuario.fecha_registro).days + 1 if usuario.fecha_registro else 1,
+    })
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
@@ -255,10 +305,46 @@ def logout():
     logout_user()
     return jsonify({"ok": True})
 
+@app.route('/api/perfil', methods=['PUT'])
+@login_required
+def actualizar_perfil():
+    data = request.get_json()
+    campos = ['edad', 'estatura', 'objetivo', 'nivel', 'dias_disponibles', 'equipamiento', 'lesiones', 'nombre', 'genero']
+    for campo in campos:
+        if campo in data:
+            setattr(current_user, campo, data[campo])
+    db.session.commit()
+    return jsonify({
+        "id": current_user.id,
+        "nombre": current_user.nombre,
+        "email": current_user.email,
+        "es_admin": current_user.es_admin,
+        "genero": current_user.genero,
+        "edad": current_user.edad,
+        "estatura": current_user.estatura,
+        "objetivo": current_user.objetivo,
+        "nivel": current_user.nivel,
+        "dias_disponibles": current_user.dias_disponibles,
+        "equipamiento": current_user.equipamiento,
+        "lesiones": current_user.lesiones or "",
+        "foto_url": current_user.foto_url or "",
+        "fecha_registro": current_user.fecha_registro.isoformat() if current_user.fecha_registro else None,
+        "dias_en_apex": (date.today() - current_user.fecha_registro).days + 1 if current_user.fecha_registro else 1,
+    })
+
 @app.route('/api/me')
 def me():
     if current_user.is_authenticated:
-        return jsonify({"id": current_user.id, "nombre": current_user.nombre, "email": current_user.email, "es_admin": current_user.es_admin, "genero": current_user.genero, "fecha_registro": current_user.fecha_registro.isoformat() if current_user.fecha_registro else None, "dias_en_apex": (date.today() - current_user.fecha_registro).days + 1 if current_user.fecha_registro else 1})
+        return jsonify({
+            "id": current_user.id, "nombre": current_user.nombre, "email": current_user.email,
+            "es_admin": current_user.es_admin, "genero": current_user.genero,
+            "edad": current_user.edad, "estatura": current_user.estatura,
+            "objetivo": current_user.objetivo, "nivel": current_user.nivel,
+            "dias_disponibles": current_user.dias_disponibles, "equipamiento": current_user.equipamiento,
+            "lesiones": current_user.lesiones or "", "foto_url": current_user.foto_url or "",
+            "fecha_registro": current_user.fecha_registro.isoformat() if current_user.fecha_registro else None,
+            "dias_en_apex": (date.today() - current_user.fecha_registro).days + 1 if current_user.fecha_registro else 1,
+        })
     return jsonify({"error": "No autenticado"}), 401
 
 # ─── API rutina ────────────────────────────────────────────

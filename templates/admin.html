@@ -222,6 +222,22 @@
                 <a href="/resetear/{{ usuario.id }}" class="btn btn-azul">🔄 Resetear</a>
             </div>
 
+            <!-- Ficha del cliente -->
+            <div class="seccion-titulo">📋 Ficha del cliente</div>
+            <div style="background:#f9f9f9; border-radius:8px; padding:12px; margin-bottom:12px; font-size:13px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div><strong>Edad:</strong> {{ usuario.edad or '—' }}</div>
+                <div><strong>Estatura:</strong> {{ usuario.estatura or '—' }} cm</div>
+                <div><strong>Objetivo:</strong> {{ usuario.objetivo or '—' }}</div>
+                <div><strong>Nivel:</strong> {{ usuario.nivel or '—' }}</div>
+                <div><strong>Días disponibles:</strong> {{ usuario.dias_disponibles or '—' }}</div>
+                <div><strong>Equipamiento:</strong> {{ usuario.equipamiento or '—' }}</div>
+              </div>
+              {% if usuario.lesiones %}
+              <div style="margin-top:8px;"><strong>Lesiones:</strong> {{ usuario.lesiones }}</div>
+              {% endif %}
+            </div>
+
             <!-- Ejercicios -->
             <div class="seccion-titulo">💪 Ejercicios</div>
             {% set todos = usuario.ejercicios %}
