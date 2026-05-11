@@ -658,6 +658,44 @@ def get_resumen_semanal():
         "inicio_semana": inicio_semana.isoformat(),
     })
 
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not current_user.is_authenticated or not current_user.es_admin:
+        return redirect('/admin-login')
+    hoy = date.today()
+    usuarios = Usuario.query.filter_by(es_admin=False).all()
+    dashboard = []
+    for u in usuarios:
+        sets_hoy = RegistroSet.query.filter_by(
+            usuario_id=u.id,
+            fecha=hoy
+        ).count()
+        ejercicios_completados = Ejercicio.query.filter_by(
+            usuario_id=u.id,
+            completado=True
+        ).count()
+        total_ejercicios = Ejercicio.query.filter_by(
+            usuario_id=u.id
+        ).count()
+        ultimo_peso = RegistroPeso.query.filter_by(
+            usuario_id=u.id
+        ).order_by(RegistroPeso.fecha.desc()).first()
+        dashboard.append({
+            "id": u.id,
+            "nombre": u.nombre,
+            "email": u.email,
+            "genero": u.genero or "masculino",
+            "objetivo": u.objetivo or "—",
+            "nivel": u.nivel or "—",
+            "entrenó_hoy": sets_hoy > 0,
+            "sets_hoy": sets_hoy,
+            "ejercicios_completados": ejercicios_completados,
+            "total_ejercicios": total_ejercicios,
+            "ultimo_peso": ultimo_peso.peso if ultimo_peso else None,
+            "fecha_ultimo_peso": ultimo_peso.fecha.isoformat() if ultimo_peso else None,
+        })
+    return render_template('admin.html', usuarios=usuarios, dias=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"], dashboard=dashboard, hoy=hoy.strftime("%d/%m/%Y"))
+
 # ─── Servir React ──────────────────────────────────────────
 @app.route('/')
 def index():

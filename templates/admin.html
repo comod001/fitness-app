@@ -33,8 +33,43 @@
     <h1>⚙️ Panel del Entrenador</h1>
     <div class="links">
         <a href="/">← Ver app</a>
+        <a href="/admin/dashboard" class="btn btn-azul">📊 Dashboard</a>
         <a href="/admin-logout" class="btn btn-gris">Cerrar sesión</a>
     </div>
+
+    <!-- DASHBOARD DE ACTIVIDAD -->
+    {% if dashboard is defined %}
+    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="margin:0; font-size:18px;">📊 Actividad de hoy — {{ hoy }}</h2>
+        <span style="font-size:13px; color:#888;">{{ dashboard|selectattr('entrenó_hoy')|list|length }}/{{ dashboard|length }} entrenaron</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+        {% for cliente in dashboard %}
+        <div style="border-radius:10px; padding:14px; border: 2px solid {{ '#4CAF50' if cliente.entrenó_hoy else '#ffcccc' }}; background: {{ '#f0fff0' if cliente.entrenó_hoy else '#fff5f5' }};">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <strong style="font-size:14px;">{{ cliente.nombre }}</strong>
+            <span style="font-size:18px;">{{ '✅' if cliente.entrenó_hoy else '❌' }}</span>
+          </div>
+          {% if cliente.entrenó_hoy %}
+          <p style="font-size:12px; color:#4CAF50; margin:0 0 4px;">{{ cliente.sets_hoy }} sets registrados hoy</p>
+          {% else %}
+          <p style="font-size:12px; color:#cc0000; margin:0 0 4px;">Sin actividad hoy</p>
+          {% endif %}
+          <p style="font-size:11px; color:#888; margin:0;">
+            {{ cliente.ejercicios_completados }}/{{ cliente.total_ejercicios }} ejercicios ✓
+            {% if cliente.ultimo_peso %}· {{ cliente.ultimo_peso }}kg{% endif %}
+          </p>
+          <p style="font-size:11px; color:#aaa; margin:4px 0 0;">
+            {{ {'perder_grasa':'Perder grasa','ganar_musculo':'Ganar músculo','rendimiento':'Rendimiento','salud_general':'Salud general'}.get(cliente.objetivo, cliente.objetivo) }}
+            · {{ cliente.nivel }}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
     <!-- AGREGAR ENFOQUE DE DÍA -->
     <h2>Enfoque por día</h2>
