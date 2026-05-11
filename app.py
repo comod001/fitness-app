@@ -348,6 +348,17 @@ def actualizar_perfil():
         "dias_en_apex": (date.today() - current_user.fecha_registro).days + 1 if current_user.fecha_registro else 1,
     })
 
+@app.route('/api/perfil/foto', methods=['POST'])
+@login_required
+def subir_foto():
+    data = request.get_json()
+    foto_base64 = data.get('foto')
+    if not foto_base64:
+        return jsonify({"error": "No se recibió imagen"}), 400
+    current_user.foto_url = foto_base64
+    db.session.commit()
+    return jsonify({"foto_url": current_user.foto_url})
+
 @app.route('/api/me')
 def me():
     if current_user.is_authenticated:
