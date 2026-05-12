@@ -785,6 +785,24 @@ def admin_dashboard():
         })
     return render_template('admin.html', usuarios=usuarios, dias=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"], dashboard=dashboard, hoy=hoy.strftime("%d/%m/%Y"))
 
+@app.route('/admin/eliminar-usuario/<int:id>')
+def eliminar_usuario(id):
+    if not current_user.is_authenticated or not current_user.es_admin:
+        return redirect('/admin-login')
+    usuario = Usuario.query.get(id)
+    if not usuario or usuario.es_admin:
+        return redirect('/admin')
+    RegistroSet.query.filter_by(usuario_id=id).delete()
+    RegistroPeso.query.filter_by(usuario_id=id).delete()
+    MensajeEntrenador.query.filter_by(usuario_id=id).delete()
+    Ejercicio.query.filter_by(usuario_id=id).delete()
+    Nutricion.query.filter_by(usuario_id=id).delete()
+    Suplemento.query.filter_by(usuario_id=id).delete()
+    DiaPlan.query.filter_by(usuario_id=id).delete()
+    db.session.delete(usuario)
+    db.session.commit()
+    return redirect('/admin')
+
 # ─── Servir React ──────────────────────────────────────────
 @app.route('/')
 def index():

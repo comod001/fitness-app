@@ -583,6 +583,12 @@
             </div>
             <div style="display:flex; gap:8px; align-items:center;">
                 <a href="/resetear/{{ usuario.id }}" class="cyber-btn cyber-btn-magenta" style="font-size:10px; padding:6px 12px;">RESETEAR</a>
+                <a href="/admin/eliminar-usuario/{{ usuario.id }}"
+                   onclick="return confirm('¿Eliminar a {{ usuario.nombre }} permanentemente? Esta acción no se puede deshacer.')"
+                   class="cyber-btn cyber-btn-danger"
+                   style="font-size:10px; padding:6px 12px;">
+                   🗑 ELIMINAR
+                </a>
                 <button onclick="cerrarPanel()" class="cyber-btn cyber-btn-danger" style="font-size:10px; padding:6px 12px;">✕ CERRAR</button>
             </div>
         </div>
