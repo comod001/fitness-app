@@ -41,7 +41,7 @@ class Usuario(UserMixin, db.Model):
     dias_disponibles = db.Column(db.Integer, nullable=True)
     equipamiento = db.Column(db.String(50), nullable=True)
     lesiones = db.Column(db.Text, nullable=True)
-    foto_url = db.Column(db.String(200), nullable=True)
+    foto_url = db.Column(db.Text, nullable=True)
     ejercicios = db.relationship('Ejercicio', backref='usuario', lazy=True)
     dias_plan = db.relationship('DiaPlan', backref='usuario', lazy=True)
     nutricion = db.relationship('Nutricion', backref='usuario', lazy=True)
@@ -192,7 +192,8 @@ with app.app_context():
         "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS dias_disponibles INTEGER",
         "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS equipamiento VARCHAR(50)",
         "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS lesiones TEXT",
-        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS foto_url VARCHAR(200)",
+        "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS foto_url TEXT",
+        "ALTER TABLE usuario ALTER COLUMN foto_url TYPE TEXT",
     ]:
         try:
             with db.engine.connect() as _conn:
