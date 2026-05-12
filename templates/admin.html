@@ -1,361 +1,873 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Panel del Entrenador</title>
+    <title>APEX HUMAN // ADMIN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 750px; margin: 40px auto; background: #f5f5f5; padding: 20px; }
-        h1, h2, h3 { color: #333; }
-        .ejercicio { background: white; border-radius: 10px; padding: 15px 20px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .info { flex: 1; }
-        .nombre { font-weight: bold; color: #222; }
-        .series { font-size: 13px; color: #888; }
-        .nota { font-size: 12px; color: #aaa; margin-top: 2px; }
-        .btn { padding: 8px 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
-        .btn-rojo { background: #ff4d4d; color: white; }
-        .btn-verde { background: #4CAF50; color: white; }
-        .btn-azul { background: #2196F3; color: white; }
-        .btn-gris { background: #888; color: white; }
-        .btn-morado { background: #9C27B0; color: white; }
-        .formulario { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 16px; }
-        input[type="text"], input[type="email"], input[type="password"], select, textarea { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; margin: 4px 0; width: 100%; box-sizing: border-box; }
-        textarea { height: 80px; resize: vertical; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .links { margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        .links a { color: #2196F3; text-decoration: none; font-size: 14px; }
-        .usuario-card { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .usuario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .seccion-titulo { font-size: 13px; font-weight: bold; color: #888; text-transform: uppercase; margin: 16px 0 8px; border-top: 1px solid #eee; padding-top: 12px; }
-        .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; }
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cyan: #00FFFF;
+            --magenta: #FF00FF;
+            --yellow: #FFE000;
+            --bg: #050508;
+            --bg2: #0a0a12;
+            --bg3: #0f0f1a;
+            --border: rgba(0,255,255,0.2);
+            --text: #c0c0d0;
+            --text-bright: #ffffff;
+            --danger: #FF3366;
+            --success: #00FF99;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            min-height: 100vh;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-logo {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 18px;
+            color: var(--cyan);
+            text-shadow: 0 0 10px rgba(0,255,255,0.5);
+            letter-spacing: 3px;
+        }
+
+        .header-logo span {
+            color: var(--magenta);
+            text-shadow: 0 0 10px rgba(255,0,255,0.5);
+        }
+
+        .header-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,255,255,0.2);
+        }
+
+        .nav-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            box-shadow: 0 0 10px rgba(255,51,102,0.2);
+        }
+
+        /* Main layout */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Section title */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--border), transparent);
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* Client card */
+        .client-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .client-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        .client-card.inactive::before {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        .client-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .client-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-bright);
+            margin-bottom: 4px;
+        }
+
+        .client-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .client-status.active { color: var(--success); }
+        .client-status.inactive { color: var(--danger); }
+
+        .client-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-box {
+            background: var(--bg3);
+            padding: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #555;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Panel de cliente */
+        .client-panel {
+            display: none;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+
+        .client-panel.active { display: block; }
+
+        .client-panel-header {
+            background: var(--bg3);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .client-panel-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            color: var(--cyan);
+            letter-spacing: 2px;
+        }
+
+        /* Tabs del cliente */
+        .client-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .client-tab {
+            padding: 12px 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: #555;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .client-tab:hover { color: var(--text); }
+        .client-tab.active {
+            color: var(--cyan);
+            border-bottom-color: var(--cyan);
+            text-shadow: 0 0 8px rgba(0,255,255,0.5);
+        }
+
+        .client-tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .client-tab-content.active { display: block; }
+
+        /* Forms */
+        .cyber-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .cyber-input, .cyber-select, .cyber-textarea {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text-bright);
+            padding: 10px 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            width: 100%;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .cyber-input:focus, .cyber-select:focus, .cyber-textarea:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,255,255,0.15);
+        }
+
+        .cyber-select option { background: var(--bg3); }
+
+        .cyber-textarea { height: 80px; resize: vertical; }
+
+        /* Buttons */
+        .cyber-btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .cyber-btn-cyan {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0,255,255,0.05);
+        }
+
+        .cyber-btn-cyan:hover {
+            background: rgba(0,255,255,0.15);
+            box-shadow: 0 0 15px rgba(0,255,255,0.3);
+        }
+
+        .cyber-btn-magenta {
+            border-color: var(--magenta);
+            color: var(--magenta);
+            background: rgba(255,0,255,0.05);
+        }
+
+        .cyber-btn-magenta:hover {
+            background: rgba(255,0,255,0.15);
+            box-shadow: 0 0 15px rgba(255,0,255,0.3);
+        }
+
+        .cyber-btn-danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255,51,102,0.05);
+        }
+
+        .cyber-btn-danger:hover {
+            background: rgba(255,51,102,0.15);
+            box-shadow: 0 0 15px rgba(255,51,102,0.3);
+        }
+
+        .cyber-btn-success {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(0,255,153,0.05);
+        }
+
+        .cyber-btn-success:hover {
+            background: rgba(0,255,153,0.15);
+            box-shadow: 0 0 15px rgba(0,255,153,0.3);
+        }
+
+        /* Exercise list */
+        .exercise-list { display: flex; flex-direction: column; gap: 6px; }
+
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--bg3);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+        }
+
+        .exercise-item:hover { border-color: var(--border); }
+
+        .exercise-day {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--cyan);
+            letter-spacing: 1px;
+            min-width: 50px;
+        }
+
+        .exercise-name { flex: 1; font-size: 14px; color: var(--text-bright); }
+        .exercise-series { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #555; }
+
+        /* Message list */
+        .message-item {
+            padding: 12px;
+            background: var(--bg3);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 8px;
+        }
+
+        .message-text { font-size: 14px; color: var(--text-bright); margin-bottom: 6px; }
+
+        .message-meta {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .message-unread { border-color: rgba(255,0,255,0.3); }
+
+        /* Ficha */
+        .ficha-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .ficha-item {
+            background: var(--bg3);
+            padding: 10px 14px;
+        }
+
+        .ficha-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .ficha-value { font-size: 14px; color: var(--text-bright); font-weight: 600; }
+
+        /* Nutrition items */
+        .nutrition-item {
+            padding: 10px 12px;
+            background: var(--bg3);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Today indicator */
+        .today-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            padding: 2px 8px;
+            letter-spacing: 1px;
+        }
+
+        .badge-active {
+            color: var(--success);
+            border: 1px solid var(--success);
+            box-shadow: 0 0 6px rgba(0,255,153,0.3);
+        }
+
+        .badge-inactive {
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
     </style>
 </head>
 <body>
-    <h1>⚙️ Panel del Entrenador</h1>
-    <div class="links">
-        <a href="/">← Ver app</a>
-        <a href="/admin/dashboard" class="btn btn-azul">📊 Dashboard</a>
-        <a href="/admin-logout" class="btn btn-gris">Cerrar sesión</a>
-    </div>
 
-    <!-- DASHBOARD DE ACTIVIDAD -->
-    {% if dashboard is defined %}
-    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="margin:0; font-size:18px;">📊 Actividad de hoy — {{ hoy }}</h2>
-        <span style="font-size:13px; color:#888;">{{ dashboard|selectattr('entrenó_hoy')|list|length }}/{{ dashboard|length }} entrenaron</span>
-      </div>
-
-      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
-        {% for cliente in dashboard %}
-        <div style="border-radius:10px; padding:14px; border: 2px solid {{ '#4CAF50' if cliente.entrenó_hoy else '#ffcccc' }}; background: {{ '#f0fff0' if cliente.entrenó_hoy else '#fff5f5' }};">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-            <strong style="font-size:14px;">{{ cliente.nombre }}</strong>
-            <span style="font-size:18px;">{{ '✅' if cliente.entrenó_hoy else '❌' }}</span>
-          </div>
-          {% if cliente.entrenó_hoy %}
-          <p style="font-size:12px; color:#4CAF50; margin:0 0 4px;">{{ cliente.sets_hoy }} sets registrados hoy</p>
-          {% else %}
-          <p style="font-size:12px; color:#cc0000; margin:0 0 4px;">Sin actividad hoy</p>
-          {% endif %}
-          <p style="font-size:11px; color:#888; margin:0;">
-            {{ cliente.ejercicios_completados }}/{{ cliente.total_ejercicios }} ejercicios ✓
-            {% if cliente.ultimo_peso %}· {{ cliente.ultimo_peso }}kg{% endif %}
-          </p>
-          <p style="font-size:11px; color:#aaa; margin:4px 0 0;">
-            {{ {'perder_grasa':'Perder grasa','ganar_musculo':'Ganar músculo','rendimiento':'Rendimiento','salud_general':'Salud general'}.get(cliente.objetivo, cliente.objetivo) }}
-            · {{ cliente.nivel }}
-          </p>
+<!-- HEADER -->
+<div class="header">
+    <div class="header-logo">APEX<span>//</span>HUMAN <span style="color:#555; font-size:12px;">ADMIN</span></div>
+    <div style="display:flex; align-items:center; gap:16px;">
+        <div class="header-status">
+            <div class="status-dot"></div>
+            SISTEMA ACTIVO · {{ hoy }}
         </div>
-        {% endfor %}
-      </div>
+        <div class="header-nav">
+            <a href="/" class="nav-btn">← CLIENT VIEW</a>
+            <a href="/admin-logout" class="nav-btn danger">LOGOUT</a>
+        </div>
     </div>
-    {% endif %}
+</div>
 
-    <!-- AGREGAR ENFOQUE DE DÍA -->
-    <h2>Enfoque por día</h2>
-    <div class="formulario">
-        <form action="/agregar-dia-plan" method="POST">
-            <div class="grid">
-                <div>
-                    <label>Cliente</label>
-                    <select name="usuario_id">
-                        {% for u in usuarios %}
-                        <option value="{{ u.id }}">{{ u.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label>Día</label>
-                    <select name="dia">
-                        {% for dia in dias %}
-                        <option>{{ dia }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <label>Enfoque</label>
-            <input type="text" name="enfoque" placeholder="Ej: Espalda · Bíceps" required>
-            <br><br>
-            <button type="submit" class="btn btn-azul">+ Guardar enfoque</button>
-        </form>
-    </div>
+<div class="main">
 
-    <!-- AGREGAR EJERCICIO -->
-    <h2>Agregar ejercicio</h2>
-    <div class="formulario">
-        <form action="/agregar" method="POST">
-            <div class="grid">
-                <div>
-                    <label>Cliente</label>
-                    <select name="usuario_id">
-                        {% for u in usuarios %}
-                        <option value="{{ u.id }}">{{ u.nombre }}</option>
-                        {% endfor %}
-                    </select>
+    <!-- DASHBOARD -->
+    <div style="margin-bottom: 32px;">
+        <div class="section-header">
+            <span class="section-title">// ACTIVIDAD HOY</span>
+            <div class="section-line"></div>
+            <span style="font-family:'Share Tech Mono',monospace; font-size:11px; color:#555;">
+                {{ dashboard|selectattr('entrenó_hoy')|list|length }}/{{ dashboard|length }} ACTIVOS
+            </span>
+        </div>
+
+        <div class="dashboard-grid">
+            {% for cliente in dashboard %}
+            <div class="client-card {{ '' if cliente.entrenó_hoy else 'inactive' }}"
+                onclick="abrirCliente('panel-{{ cliente.id }}')">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                    <div>
+                        <div class="client-name">{{ cliente.nombre }}</div>
+                        <div class="client-status {{ 'active' if cliente.entrenó_hoy else 'inactive' }}">
+                            {{ '● ENTRENÓ HOY' if cliente.entrenó_hoy else '○ SIN ACTIVIDAD' }}
+                        </div>
+                    </div>
+                    <span class="today-badge {{ 'badge-active' if cliente.entrenó_hoy else 'badge-inactive' }}">
+                        {{ cliente.sets_hoy }} SETS
+                    </span>
                 </div>
-                <div>
-                    <label>Día</label>
-                    <select name="dia">
-                        {% for dia in dias %}
-                        <option>{{ dia }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="client-stats">
+                    <div class="stat-box">
+                        <div class="stat-value">{{ cliente.ejercicios_completados }}</div>
+                        <div class="stat-label">Completados</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ cliente.ultimo_peso or '—' }}</div>
+                        <div class="stat-label">Peso kg</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" style="color: var(--magenta);">{{ cliente.nivel or '—' }}</div>
+                        <div class="stat-label">Nivel</div>
+                    </div>
                 </div>
             </div>
-            <div class="grid">
-                <div>
-                    <label>Ejercicio</label>
-                    <input type="text" name="nombre" placeholder="Ej: Curl con barra" required>
-                </div>
-                <div>
-                    <label>Series/Reps</label>
-                    <input type="text" name="series" placeholder="Ej: 3x12" required>
-                </div>
-            </div>
-            <label>Nota (opcional)</label>
-            <input type="text" name="nota" placeholder="Ej: Enfócate en la contracción">
-            <br><br>
-            <button type="submit" class="btn btn-verde">+ Agregar ejercicio</button>
-        </form>
+            {% endfor %}
+        </div>
     </div>
 
-    <!-- AGREGAR SUPLEMENTO -->
-    <h2>Agregar suplemento</h2>
-    <div class="formulario">
-        <form action="/agregar-suplemento" method="POST">
-            <div class="grid">
-                <div>
-                    <label>Cliente</label>
-                    <select name="usuario_id">
-                        {% for u in usuarios %}
-                        <option value="{{ u.id }}">{{ u.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label>Prioridad</label>
-                    <select name="prioridad">
-                        <option>Alta</option>
-                        <option>Media</option>
-                        <option>Baja</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid">
-                <div>
-                    <label>Nombre</label>
-                    <input type="text" name="nombre" placeholder="Ej: Creatina Monohidrato" required>
-                </div>
-                <div>
-                    <label>Dosis</label>
-                    <input type="text" name="dosis" placeholder="Ej: 5g diarios" required>
-                </div>
-            </div>
-            <div class="grid">
-                <div>
-                    <label>Color (hex)</label>
-                    <input type="text" name="color" placeholder="#2EC4B6" value="#2EC4B6">
-                </div>
-                <div></div>
-            </div>
-            <label>Razón</label>
-            <textarea name="razon" placeholder="Por qué se recomienda este suplemento..." required></textarea>
-            <button type="submit" class="btn btn-morado">+ Agregar suplemento</button>
-        </form>
-    </div>
-
-    <!-- AGREGAR NUTRICIÓN -->
-    <h2>Agregar nutrición</h2>
-    <div class="formulario">
-        <form action="/agregar-nutricion" method="POST">
-            <div class="grid">
-                <div>
-                    <label>Cliente</label>
-                    <select name="usuario_id">
-                        {% for u in usuarios %}
-                        <option value="{{ u.id }}">{{ u.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label>Tipo</label>
-                    <select name="tipo">
-                        <option value="objetivo">Objetivo (macro)</option>
-                        <option value="comida">Comida / Estrategia</option>
-                        <option value="regla">Regla clave</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid">
-                <div>
-                    <label>Título</label>
-                    <input type="text" name="titulo" placeholder="Ej: Proteína" required>
-                </div>
-                <div>
-                    <label>Subtítulo / Timing</label>
-                    <input type="text" name="subtitulo" placeholder="Ej: g/día o 'En cada comida'">
-                </div>
-            </div>
-            <div class="grid">
-                <div>
-                    <label>Valor (para objetivos)</label>
-                    <input type="text" name="valor" placeholder="Ej: 120–140">
-                </div>
-                <div>
-                    <label>Color (hex)</label>
-                    <input type="text" name="color" placeholder="#2EC4B6" value="#2EC4B6">
-                </div>
-            </div>
-            <label>Contenido (items separados por |)</label>
-            <textarea name="contenido" placeholder="Item 1|Item 2|Item 3"></textarea>
-            <button type="submit" class="btn btn-verde">+ Agregar nutrición</button>
-        </form>
-    </div>
-
-    <!-- CLIENTES -->
-    <h2>Clientes</h2>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-        {% for usuario in usuarios %}
-        <button
-            id="tab-{{ usuario.id }}"
-            onclick="mostrarCliente({{ usuario.id }})"
-            class="btn"
-            style="background: #e0e0e0; color: #333; font-size: 13px;">
-            {{ usuario.nombre.split(' ')[0] }}
-        </button>
-        {% endfor %}
-    </div>
-
+    <!-- PANELES POR CLIENTE -->
     {% for usuario in usuarios %}
-    <div class="cliente-panel" id="panel-{{ usuario.id }}" style="display: none;">
-        <div class="usuario-card">
-            <div class="usuario-header">
-                <div>
-                    <strong>{{ usuario.nombre }}</strong>
-                    <span style="font-size: 13px; color: #888; margin-left: 8px;">{{ usuario.email }}</span>
+    <div id="panel-{{ usuario.id }}" class="client-panel">
+        <div class="client-panel-header">
+            <div>
+                <div class="client-panel-name">// {{ usuario.nombre | upper }}</div>
+                <div style="font-size:12px; color:#555; margin-top:2px;">{{ usuario.email }}</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <a href="/resetear/{{ usuario.id }}" class="cyber-btn cyber-btn-magenta" style="font-size:10px; padding:6px 12px;">RESETEAR</a>
+                <button onclick="cerrarPanel()" class="cyber-btn cyber-btn-danger" style="font-size:10px; padding:6px 12px;">✕ CERRAR</button>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="client-tabs">
+            <button class="client-tab active" onclick="switchTab(this, 'ficha-{{ usuario.id }}')">FICHA</button>
+            <button class="client-tab" onclick="switchTab(this, 'ejercicios-{{ usuario.id }}')">EJERCICIOS</button>
+            <button class="client-tab" onclick="switchTab(this, 'mensaje-{{ usuario.id }}')">MENSAJES</button>
+            <button class="client-tab" onclick="switchTab(this, 'nutricion-{{ usuario.id }}')">NUTRICIÓN</button>
+            <button class="client-tab" onclick="switchTab(this, 'suplementos-{{ usuario.id }}')">SUPLEMENTOS</button>
+        </div>
+
+        <!-- FICHA -->
+        <div id="ficha-{{ usuario.id }}" class="client-tab-content active">
+            <div class="ficha-grid">
+                <div class="ficha-item">
+                    <div class="ficha-label">Objetivo</div>
+                    <div class="ficha-value">{{ {'perder_grasa':'Perder grasa','ganar_musculo':'Ganar músculo','rendimiento':'Rendimiento','salud_general':'Salud general'}.get(usuario.objetivo, '—') }}</div>
                 </div>
-                <a href="/resetear/{{ usuario.id }}" class="btn btn-azul">🔄 Resetear</a>
-            </div>
-
-            <!-- Ficha del cliente -->
-            <div class="seccion-titulo">📋 Ficha del cliente</div>
-            <div style="background:#f9f9f9; border-radius:8px; padding:12px; margin-bottom:12px; font-size:13px;">
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div><strong>Edad:</strong> {{ usuario.edad or '—' }}</div>
-                <div><strong>Estatura:</strong> {{ usuario.estatura or '—' }} cm</div>
-                <div><strong>Objetivo:</strong> {{ usuario.objetivo or '—' }}</div>
-                <div><strong>Nivel:</strong> {{ usuario.nivel or '—' }}</div>
-                <div><strong>Días disponibles:</strong> {{ usuario.dias_disponibles or '—' }}</div>
-                <div><strong>Equipamiento:</strong> {{ usuario.equipamiento or '—' }}</div>
-              </div>
-              {% if usuario.lesiones %}
-              <div style="margin-top:8px;"><strong>Lesiones:</strong> {{ usuario.lesiones }}</div>
-              {% endif %}
-            </div>
-
-            <!-- Ejercicios -->
-            <div class="seccion-titulo">💪 Ejercicios</div>
-            {% set todos = usuario.ejercicios %}
-            {% set dias_usuario = todos | map(attribute='dia') | unique | list %}
-            {% for dia in dias_usuario %}
-            {% set ejercicios_dia = todos | selectattr('dia', 'equalto', dia) | list %}
-            <h3 style="font-size: 13px; color: #555; margin: 10px 0 6px;">{{ dia }}</h3>
-            {% for ejercicio in ejercicios_dia %}
-            <div class="ejercicio">
-                <div class="info">
-                    <div class="nombre">{{ ejercicio.nombre }}</div>
-                    <div class="series">{{ ejercicio.series }}</div>
-                    {% if ejercicio.nota %}<div class="nota">💡 {{ ejercicio.nota }}</div>{% endif %}
+                <div class="ficha-item">
+                    <div class="ficha-label">Nivel</div>
+                    <div class="ficha-value">{{ usuario.nivel or '—' }}</div>
                 </div>
-                <a href="/eliminar/{{ ejercicio.id }}" class="btn btn-rojo">🗑</a>
-            </div>
-            {% endfor %}
-            {% endfor %}
-
-            <!-- Suplementos -->
-            <div class="seccion-titulo">💊 Suplementos</div>
-            {% for s in usuario.suplementos %}
-            <div class="ejercicio">
-                <div class="info">
-                    <div class="nombre" style="color: {{ s.color }}">{{ s.nombre }}</div>
-                    <div class="series">{{ s.dosis }}</div>
-                    <div class="nota">{{ s.razon }}</div>
+                <div class="ficha-item">
+                    <div class="ficha-label">Edad</div>
+                    <div class="ficha-value">{{ usuario.edad or '—' }} años</div>
                 </div>
-                <a href="/eliminar-suplemento/{{ s.id }}" class="btn btn-rojo">🗑</a>
-            </div>
-            {% endfor %}
-
-            <!-- Nutrición -->
-            <div class="seccion-titulo">🥗 Nutrición</div>
-            {% for n in usuario.nutricion %}
-            <div class="ejercicio">
-                <div class="info">
-                    <div class="nombre">{{ n.titulo }}</div>
-                    <div class="series">{{ n.tipo }} {% if n.subtitulo %}— {{ n.subtitulo }}{% endif %}</div>
-                    {% if n.contenido %}<div class="nota">{{ n.contenido }}</div>{% endif %}
+                <div class="ficha-item">
+                    <div class="ficha-label">Estatura</div>
+                    <div class="ficha-value">{{ usuario.estatura or '—' }} cm</div>
                 </div>
-                <a href="/eliminar-nutricion/{{ n.id }}" class="btn btn-rojo">🗑</a>
+                <div class="ficha-item">
+                    <div class="ficha-label">Días disponibles</div>
+                    <div class="ficha-value">{{ usuario.dias_disponibles or '—' }} días/semana</div>
+                </div>
+                <div class="ficha-item">
+                    <div class="ficha-label">Equipamiento</div>
+                    <div class="ficha-value">{{ usuario.equipamiento or '—' }}</div>
+                </div>
+                <div class="ficha-item" style="grid-column: span 2;">
+                    <div class="ficha-label">Lesiones / Limitaciones</div>
+                    <div class="ficha-value">{{ usuario.lesiones or 'Ninguna' }}</div>
+                </div>
             </div>
-            {% endfor %}
+        </div>
 
-            <!-- Enviar mensaje -->
-            <div class="seccion-titulo">💬 Enviar mensaje</div>
-            <form action="/admin/mensaje" method="POST" style="display:flex; gap:8px; margin-bottom:8px;">
-              <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
-              <input type="text" name="mensaje" placeholder="Escribe una nota para {{ usuario.nombre }}..." required style="flex:1;">
-              <button type="submit" class="btn btn-verde">Enviar</button>
+        <!-- EJERCICIOS -->
+        <div id="ejercicios-{{ usuario.id }}" class="client-tab-content">
+            <!-- Form agregar ejercicio -->
+            <form action="/agregar" method="POST" class="cyber-form" style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+                <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Día</label>
+                        <select name="dia" class="cyber-select">
+                            {% for dia in dias %}
+                            <option>{{ dia }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Series / Reps</label>
+                        <input type="text" name="series" placeholder="Ej: 4x10-12" class="cyber-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ejercicio</label>
+                    <input type="text" name="nombre" placeholder="Ej: Press de banca inclinado" class="cyber-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nota (opcional)</label>
+                    <input type="text" name="nota" placeholder="Ej: Enfócate en la contracción" class="cyber-input">
+                </div>
+                <button type="submit" class="cyber-btn cyber-btn-cyan">+ AGREGAR EJERCICIO</button>
             </form>
 
-            <!-- Mensajes enviados -->
-            {% set mensajes_usuario = usuario.mensajes_entrenador %}
-            {% for m in mensajes_usuario[:5] %}
-            <div style="background:#f9f9f9; border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-              <div>
-                <p style="font-size:13px; color:#333; margin:0 0 4px;">{{ m.mensaje }}</p>
-                <p style="font-size:11px; color:#aaa; margin:0;">{{ m.fecha.strftime('%d/%m/%Y %H:%M') }} {{ '· Leído ✓' if m.leido else '· Sin leer' }}</p>
-              </div>
-              <a href="/admin/mensaje/{{ m.id }}/eliminar" style="color:#ff4d4d; font-size:12px; text-decoration:none; flex-shrink:0;">✕</a>
+            <!-- Lista de ejercicios -->
+            <div class="exercise-list">
+                {% set todos = usuario.ejercicios %}
+                {% set dias_usuario = todos | map(attribute='dia') | unique | list %}
+                {% for dia in dias_usuario %}
+                <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--cyan); letter-spacing:2px; padding:8px 0 4px; margin-top:8px;">// {{ dia | upper }}</div>
+                {% for ejercicio in todos | selectattr('dia', 'equalto', dia) | list %}
+                <div class="exercise-item">
+                    <div class="exercise-name">{{ ejercicio.nombre }}</div>
+                    <div class="exercise-series">{{ ejercicio.series }}</div>
+                    {% if ejercicio.nota %}
+                    <div style="font-size:11px; color:#555;">{{ ejercicio.nota }}</div>
+                    {% endif %}
+                    <a href="/eliminar/{{ ejercicio.id }}" class="cyber-btn cyber-btn-danger" style="font-size:10px; padding:4px 8px; flex-shrink:0;">✕</a>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div id="mensaje-{{ usuario.id }}" class="client-tab-content">
+            <form action="/admin/mensaje" method="POST" class="cyber-form" style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+                <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+                <div class="form-group">
+                    <label class="form-label">Mensaje para {{ usuario.nombre }}</label>
+                    <textarea name="mensaje" class="cyber-textarea" placeholder="Escribe una nota, corrección o motivación..." required></textarea>
+                </div>
+                <button type="submit" class="cyber-btn cyber-btn-magenta">ENVIAR MENSAJE</button>
+            </form>
+
+            {% for m in usuario.mensajes_entrenador | sort(attribute='fecha', reverse=True) %}
+            <div class="message-item {{ 'message-unread' if not m.leido else '' }}">
+                <div class="message-text">{{ m.mensaje }}</div>
+                <div class="message-meta">
+                    <span>{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}</span>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <span style="color: {{ 'var(--success)' if m.leido else 'var(--magenta)' }}">
+                            {{ '✓ LEÍDO' if m.leido else '● SIN LEER' }}
+                        </span>
+                        <a href="/admin/mensaje/{{ m.id }}/eliminar" style="color:var(--danger); text-decoration:none; font-size:11px;">✕</a>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
+
+        <!-- NUTRICIÓN -->
+        <div id="nutricion-{{ usuario.id }}" class="client-tab-content">
+            <form action="/agregar-nutricion" method="POST" class="cyber-form" style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+                <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Tipo</label>
+                        <select name="tipo" class="cyber-select">
+                            <option value="objetivo">Objetivo (macro)</option>
+                            <option value="comida">Comida / Estrategia</option>
+                            <option value="regla">Regla clave</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Color (hex)</label>
+                        <input type="text" name="color" value="#00FFFF" class="cyber-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="titulo" class="cyber-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subtítulo / Timing</label>
+                        <input type="text" name="subtitulo" class="cyber-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Valor</label>
+                        <input type="text" name="valor" class="cyber-input" placeholder="Ej: 120-140">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contenido (items separados por |)</label>
+                    <textarea name="contenido" class="cyber-textarea" placeholder="Item 1|Item 2|Item 3"></textarea>
+                </div>
+                <button type="submit" class="cyber-btn cyber-btn-cyan">+ AGREGAR NUTRICIÓN</button>
+            </form>
+
+            {% for n in usuario.nutricion | sort(attribute='orden') %}
+            <div class="nutrition-item">
+                <div>
+                    <div style="font-size:10px; font-family:'Share Tech Mono',monospace; color:#555; letter-spacing:1px;">{{ n.tipo | upper }}</div>
+                    <div style="font-size:14px; color:var(--text-bright); font-weight:600;">{{ n.titulo }}</div>
+                    {% if n.subtitulo %}<div style="font-size:12px; color:#555;">{{ n.subtitulo }}</div>{% endif %}
+                </div>
+                <a href="/eliminar-nutricion/{{ n.id }}" class="cyber-btn cyber-btn-danger" style="font-size:10px; padding:4px 8px; flex-shrink:0;">✕</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- SUPLEMENTOS -->
+        <div id="suplementos-{{ usuario.id }}" class="client-tab-content">
+            <form action="/agregar-suplemento" method="POST" class="cyber-form" style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+                <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" class="cyber-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dosis</label>
+                        <input type="text" name="dosis" class="cyber-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Prioridad</label>
+                        <select name="prioridad" class="cyber-select">
+                            <option>Alta</option>
+                            <option>Media</option>
+                            <option>Baja</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Color (hex)</label>
+                        <input type="text" name="color" value="#00FFFF" class="cyber-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Razón</label>
+                    <textarea name="razon" class="cyber-textarea" required></textarea>
+                </div>
+                <button type="submit" class="cyber-btn cyber-btn-magenta">+ AGREGAR SUPLEMENTO</button>
+            </form>
+
+            {% for s in usuario.suplementos | sort(attribute='orden') %}
+            <div class="nutrition-item">
+                <div>
+                    <div style="font-size:14px; font-weight:600; color:{{ s.color }};">{{ s.nombre }}</div>
+                    <div style="font-size:12px; color:#555;">{{ s.dosis }} · {{ s.prioridad }}</div>
+                </div>
+                <a href="/eliminar-suplemento/{{ s.id }}" class="cyber-btn cyber-btn-danger" style="font-size:10px; padding:4px 8px; flex-shrink:0;">✕</a>
+            </div>
+            {% endfor %}
+        </div>
+
     </div>
     {% endfor %}
 
-    <script>
-        var _clienteActivo = null;
-        function mostrarCliente(id) {
-            document.querySelectorAll('.cliente-panel').forEach(function(p) { p.style.display = 'none'; });
-            document.querySelectorAll('[id^="tab-"]').forEach(function(b) { b.style.background = '#e0e0e0'; b.style.color = '#333'; });
-            if (_clienteActivo === id) {
-                _clienteActivo = null;
-                return;
-            }
-            document.getElementById('panel-' + id).style.display = 'block';
-            var tab = document.getElementById('tab-' + id);
-            tab.style.background = '#2196F3';
-            tab.style.color = '#fff';
-            _clienteActivo = id;
-        }
-    </script>
+    <!-- SECCIÓN ENFOQUES -->
+    <div style="margin-bottom: 32px;">
+        <div class="section-header">
+            <span class="section-title">// ENFOQUES POR DÍA</span>
+            <div class="section-line"></div>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); padding:20px;">
+            <form action="/agregar-dia-plan" method="POST" class="cyber-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Cliente</label>
+                        <select name="usuario_id" class="cyber-select">
+                            {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Día</label>
+                        <select name="dia" class="cyber-select">
+                            {% for dia in dias %}
+                            <option>{{ dia }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Enfoque</label>
+                        <input type="text" name="enfoque" placeholder="Ej: Espalda · Bíceps" class="cyber-input" required>
+                    </div>
+                </div>
+                <button type="submit" class="cyber-btn cyber-btn-cyan">+ GUARDAR ENFOQUE</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function abrirCliente(panelId) {
+    document.querySelectorAll('.client-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById(panelId);
+    if (panel) {
+        panel.classList.add('active');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function cerrarPanel() {
+    document.querySelectorAll('.client-panel').forEach(p => p.classList.remove('active'));
+}
+
+function switchTab(btn, contentId) {
+    const panel = btn.closest('.client-panel');
+    panel.querySelectorAll('.client-tab').forEach(t => t.classList.remove('active'));
+    panel.querySelectorAll('.client-tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(contentId).classList.add('active');
+}
+</script>
+
 </body>
 </html>

@@ -419,9 +419,27 @@ def get_suplementos():
 def admin():
     if not current_user.is_authenticated or not current_user.es_admin:
         return redirect('/admin-login')
+    hoy = date.today()
     usuarios = Usuario.query.filter_by(es_admin=False).all()
-    dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
-    return render_template('admin.html', usuarios=usuarios, dias=dias)
+    dias = ["Día A","Día B","Día C","Día D","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
+    dashboard = []
+    for u in usuarios:
+        sets_hoy = RegistroSet.query.filter_by(usuario_id=u.id, fecha=hoy).count()
+        ejercicios_completados = Ejercicio.query.filter_by(usuario_id=u.id, completado=True).count()
+        total_ejercicios = Ejercicio.query.filter_by(usuario_id=u.id).count()
+        ultimo_peso = RegistroPeso.query.filter_by(usuario_id=u.id).order_by(RegistroPeso.fecha.desc()).first()
+        dashboard.append({
+            "id": u.id,
+            "nombre": u.nombre,
+            "email": u.email,
+            "nivel": u.nivel or "—",
+            "entrenó_hoy": sets_hoy > 0,
+            "sets_hoy": sets_hoy,
+            "ejercicios_completados": ejercicios_completados,
+            "total_ejercicios": total_ejercicios,
+            "ultimo_peso": ultimo_peso.peso if ultimo_peso else None,
+        })
+    return render_template('admin.html', usuarios=usuarios, dias=dias, dashboard=dashboard, hoy=hoy.strftime("%d/%m/%Y"))
 
 @app.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
